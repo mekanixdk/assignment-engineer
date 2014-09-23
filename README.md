@@ -1,7 +1,8 @@
 Engineer Assignment
 ===================
 
-Implement a working SDK based on the `IClient` interface.
+Implement a working client SDK based on the `IClient` interface.
+The SDK should help developers by avoiding direct usage of the API.
 
 The actual `IClient` interface is found on one of the `language/<name>` branches.
 
