@@ -6,7 +6,7 @@ interface IClient
     /**
      * Initialize the client with api key and secret
      */
-    public function initialize($key, secret);
+    public function initialize($key, $secret);
 
     /**
      * Sign in based on $credentials
@@ -67,6 +67,3 @@ interface IClient
     public function getDealer($options);
 
 }
-
-
-
