@@ -3,6 +3,9 @@ Engineer Assignment
 
 Implement a working SDK based on the `IClient` interface.
 
+The actual `IClient` interface is found on one of the `language/<name>` branches.
+
+
 The goal is to produce well-written code that you are proud to commit.
 Remember to comment (but not over-comment) your code.
 The comments should be for other developers, just as in an real-life scenario.
@@ -41,7 +44,7 @@ Requirements
 You must implement the methods `initialize`, `signIn`, `signOut` and `destroy`.
 The remaining methods are optional, but we would like at least one of them
 to be functional.
-PHPDoc is left out on the remaining functions on purpose. It is up to you
+Code comments is left out on the remaining functions on purpose. It is up to you
 to design the best suited return values.
 
 You can change the `IClient` interface if you write a few lines about why you changed it.
@@ -51,7 +54,7 @@ You can change the `IClient` interface if you write a few lines about why you ch
 Extra Credits
 -----------------------
 
-- Unit tests is a major plus. We suggest [https://phpunit.de](https://phpunit.de/), but any framework (or no framework) is fine.
+- Unit tests is a major plus.
 - Code coverage report.
 - Few as possible external dependencies.
 
