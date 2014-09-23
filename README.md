@@ -24,6 +24,7 @@ Getting Started
 Simply clone, or fork, this repository, and commit your work directly to it.
 When it is time to hand in the solution, see the "Hand In" section.
 
+The documentation for the API is located at [engineering.etilbudsavis.dk/eta-api/](http://engineering.etilbudsavis.dk/eta-api/).
 
 
 What we are looking for
