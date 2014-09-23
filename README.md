@@ -36,6 +36,8 @@ What we are looking for
 If you choose performance over readability for certain parts, please write a few paragraphs
 on why you choose to optimize that part of your code (again, not in the comments).
 
+Also, feel free to change the folder structure of your solution.
+
 
 
 Requirements
