@@ -14,14 +14,14 @@ If you need to comment on your solution to the assignment (by all means do),
 please keep that in a seperate document.
 We prefer markdown or other plain-text formats, but a PDF is also fine.
 Note that Microsoft Word documents (or other office suite tools) will not be read.
-Export to PDF if you have to use such a tools.
+Export to PDF, if you have to use such a tool.
 
 
 
 Getting Started
 -----------------------
 
-Simply clone or fork this repository, and commit your work directly to it.
+Simply clone, or fork, this repository, and commit your work directly to it.
 When it is time to hand in the solution, see the "Hand In" section.
 
 
