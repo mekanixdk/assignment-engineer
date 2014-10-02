@@ -42,7 +42,6 @@ class myIClient implements IClient {
     /*
      * CONSTANTS
      */
-    private $CLIENT_ERROR = 5000;
     private $SUCCESS = "success";
     private $ID = "id"; //TODO Use this
     private $MESSAGE = "message";
@@ -54,12 +53,6 @@ class myIClient implements IClient {
 
     private $host = "https://api.etilbudsavis.dk";
 
-//    function __construct () {
-//        include ('keywords.php');
-//
-//    }
-
-
     /**
      * Initialize the client with api key and secret
      *
@@ -70,7 +63,6 @@ class myIClient implements IClient {
      *      ['success']     boolean     TRUE if operation have been successful, else FALSE
      *      ['code']        int         Error codes according to
      *                                  http://engineering.etilbudsavis.dk/eta-api/pages/help/error-codes.html
-     *                                  & Code 5000 - client error.
      *      ['response_code']   string  HTTP Response code according to
      *                                  http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
      *      ['id']          string      ID provided by etilbudsavis.dk. May be NULL if error occurs before contacting server.
@@ -90,7 +82,6 @@ class myIClient implements IClient {
             //Illegal $key or $secret
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "Illegal \$key or \$secret!",
                 $this->DETAILS => "Either \$key or \$secret are either empty, FALSE or null!"
@@ -110,7 +101,6 @@ class myIClient implements IClient {
         } else {
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "Client already initialized",
                 $this->DETAILS => "Client already initialized!"
@@ -132,7 +122,6 @@ class myIClient implements IClient {
      *      ['success']     boolean     TRUE if operation have been successful, else FALSE
      *      ['code']        int         Error codes according to
      *                                  http://engineering.etilbudsavis.dk/eta-api/pages/help/error-codes.html
-     *                                  & Code 5000 - client error.
      *      ['response_code']   string  HTTP Response code according to
      *                                  http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
      *      ['id']          string      ID provided by etilbudsavis.dk. May be NULL if error occurs before contacting server.
@@ -148,7 +137,6 @@ class myIClient implements IClient {
             //Illegal credentials
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "Illegal credentials!",
                 $this->DETAILS => "User_name or user_password are either empty, FALSE or null!"
@@ -157,7 +145,6 @@ class myIClient implements IClient {
             //Client no initialized
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "Client not initialized!",
                 $this->DETAILS => "Client not initialized! You need to call initialize(\$key, \$secret) first."
@@ -167,7 +154,6 @@ class myIClient implements IClient {
             //TODO Check if the user is the same -- if it is ignore request.
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "A user is already attached!",
                 $this->DETAILS => "A user is already attached! You need to logout the current user first."
@@ -193,12 +179,10 @@ class myIClient implements IClient {
      *
      * TODO As signOut() are given no attribute assumption is only one user can be attached to at session at a time.
      *
-     *
      * $return_message[]
      *      ['success']     boolean     TRUE if operation have been successful, else FALSE
      *      ['code']        int         Error codes according to
      *                                  http://engineering.etilbudsavis.dk/eta-api/pages/help/error-codes.html
-     *                                  & Code 5000 - client error.
      *      ['response_code']   string  HTTP Response code according to
      *                                  http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
      *      ['id']          string      ID provided by etilbudsavis.dk. May be NULL if error occurs before contacting server.
@@ -213,7 +197,6 @@ class myIClient implements IClient {
         if (!isset($this->user_name)) {
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "No user signed in!",
                 $this->DETAILS => "No user signed in! A user must be signed in first."
@@ -228,7 +211,6 @@ class myIClient implements IClient {
                 //TODO logout failed -- should we do something like retry or should signOut() be called again by the caller?
             }
         }
-
         return $return_message;
     }
 
@@ -240,7 +222,6 @@ class myIClient implements IClient {
      *      ['success']     boolean     TRUE if operation have been successful, else FALSE
      *      ['code']        int         Error codes according to
      *                                  http://engineering.etilbudsavis.dk/eta-api/pages/help/error-codes.html
-     *                                  & Code 5000 - client error.
      *      ['response_code']   string  HTTP Response code according to
      *                                  http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
      *      ['id']          string      ID provided by etilbudsavis.dk. May be NULL if error occurs before contacting server.
@@ -255,7 +236,6 @@ class myIClient implements IClient {
             //TODO Redundancy? Better way to test and create error-messages and reduce clutter?
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->CODE => $this->CLIENT_ERROR,
                 $this->ID => null,
                 $this->MESSAGE => "Client not initialized!",
                 $this->DETAILS => "Client not initialized! You need to call initialize(\$key, \$secret) first."
@@ -390,7 +370,7 @@ class myIClient implements IClient {
 
     private function destroy_session()
     {
-        $req_http = new HttpRequest($this->host."/v2/sessions?", HttpRequest::METH_DELETE);
+        $req_http = new HttpRequest($this->host."/v2/sessions", HttpRequest::METH_DELETE);
         $headers = array(
             "X-Token" => $this->api_token,
             "X-Signature" => hash("sha256",$this->api_secret.$this->api_token)
@@ -444,6 +424,11 @@ class myIClient implements IClient {
             $this->ID => $json_array[$this->ID]
         );
         return $return_message;
+    }
+
+    private function user_signIn()
+    {
+
     }
 
 }
