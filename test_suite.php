@@ -6,7 +6,9 @@
  * Time: 10:38
  */
 
-include "myIClient.php";
+//include "myIClient.php";
+include "mIClient.php";
+
 
 /**
  * privatestuff.php holds $api_key, $api_secret, $user_name, $user_password
@@ -18,62 +20,73 @@ include "myIClient.php";
 include "privatestuff.php";
 include "keywords.php";
 
-$iclient = new myIClient();
+//$iclient = new myIClient();
 
-/*
- * Bogus calls
- */
-$ret_message = $iclient->initialize("xx","yy");
-mEcho("Bogus 1", $ret_message);
-
-$ret_message = $iclient->signIn("");
-mEcho("Bogus 2", $ret_message);
-
-$ret_message = $iclient->signIn(array(
-    "user_name" => "xx",
-    "user_password" => "yy"));
-mEcho("Bogus 3", $ret_message);
-
-//TODO TEST active client illegal user.
-
-$ret_message = $iclient->signOut();
-mEcho("Bogus 4", $ret_message);
-
-$ret_message = $iclient->destroy();
-mEcho("Bogus 5", $ret_message);
+$iclient = new mIClient();
 
 
+run_test("signOut() No user signed in, client no initialized", $iclient->signOut());
+
+run_test("signIn() -- Correct usage, but client not initialized", $iclient->signIn(array(
+    "email" => $user_name,
+    "password" => $user_password)));
+
+run_test("initialize() Bogus api_key", $iclient->initialize("xx", $api_secret));
+
+run_test("initialize() -- Correct usage", $iclient->initialize($api_key, $api_secret));
+
+run_test("signOut() No user signed in", $iclient->signOut());
+
+run_test("signIn() Bogus user", $iclient->signIn(array(
+    "email" => "xx",
+    "password" => "yy")));
+
+run_test("signIn() Malformed array", $iclient->signIn(array(
+    "mail" => "xx",
+    "password" => "yy")));
+
+run_test("signIn() -- Correct usage", $iclient->signIn(array(
+    "email" => $user_name,
+    "password" => $user_password)));
+
+run_test("signOut() -- Correct usage", $iclient->signOut());
+
+run_test("destroy() -- Correct usage", $iclient->destroy());
+
+//Make test with bogus secret
+run_test("initialize() Correct api_key, Bogus api_secret", $iclient->initialize($api_key, "xxx"));
+run_test("signIn() -- Correct usage, bogus api_secret", $iclient->signIn(array(
+    "email" => $user_name,
+    "password" => $user_password)));
+run_test("signOut() -- Correct usage, bogus api_secret", $iclient->signOut());
+run_test("destroy() -- Correct usage, bogus api_secret", $iclient->destroy());
 
 
-/*
- * Legitimate calls
- */
+function run_test($title,  $result) {
+    //Constants
+    $API_ID = "id";
+    $API_MESSAGE = "message";
+    $API_DETAILS = "details";
+    $API_CODE = "code";
+    $HTTP_CODE = "http_code";
+    $CLIENT_CODE = "client_code";
+    global $iclient;
+    echo("\n\n*** ".$title." ***\n");
+    if(!$result) {
+        echo("\nMessage from error()");
+        $error = $iclient->error();
+        echo ("\nCLIENT CODE:   " . $error[$CLIENT_CODE]);
+        echo ("\nHTTP RESPONES: " . $error[$HTTP_CODE]);
+        if(!empty($error["code"])) {
+            echo ("\nAPI CODE:      " . $error[$API_CODE]);
+            echo ("\nAPI ID:        " . $error[$API_ID]);
+            echo ("\nAPI MESSAGE:   " . $error[$API_MESSAGE]);
+            echo ("\nAPI DETAILS:   " . $error[$API_DETAILS]);
+        }
+         echo("\nException():" .$iclient->error_exception());
+    } else {
+        echo("\nSuccess!\n");
 
-$ret_message = $iclient->initialize($api_key,$api_secret);
-mEcho("Initialize Client", $ret_message);
-
-$ret_message = $iclient->destroy();
-mEcho("Destroy Client", $ret_message);
-
-
-function mEcho($title, $ret_message) {
-    global $SUCCESS,$MESSAGE,$ID,$DETAILS,$CODE,$RESPONSE_CODE;
-    echo ("\n\n**** ".$title." ****\n");
-    echo ("\nSuccess: ".($ret_message[$SUCCESS] ? "true" : "false"));
-    if (!empty($ret_message[$CODE])) {
-        echo("\nAPI Code: " . $ret_message[$CODE]);
-    }
-    if (!empty($ret_message[$RESPONSE_CODE])) {
-        echo("\nResponse Code: " . $ret_message[$RESPONSE_CODE]);
-    }
-    if (!empty($ret_message[$MESSAGE])) {
-        echo("\nMessage: " . $ret_message[$MESSAGE]);
-    }
-    if (!empty($ret_message[$DETAILS])) {
-        echo ("\nDetails: ".$ret_message[$DETAILS]);
-    }
-    if (!empty($ret_message[$ID])) {
-        echo("\nID: " . $ret_message[$ID]);
     }
 }
 
