@@ -23,4 +23,28 @@ class keywords {
     public $STRING_USER_EMAIL = "email";
     public $STRING_USER_PASSWORD = "password";
 
+    public $CLIENT_MESSAGE;
+
+    function __construct() {
+        $this->CLIENT_MESSAGE = array(
+            5001 => "initialize() failed. Session already active.",
+            5002 => "initialize() failed. Malformed \$key and/or \$secret.",
+            5003 => "initialize() failed. Consult error() for details.",
+            5004 => "initialize() failed. Consult error() for details.",
+            5010 => "signIn() failed. No active session.",
+            5011 => "signIn() failed. Malformed \$credentials.",
+            5012 => "signIn() failed. Consult error() for details.",
+            5020 => "signOut() failed. No active session.",
+            5021 => "signOut() failed. Consult error() for details.",
+            5040 => "destroy() failed. No active session.",
+            5041 => "destroy() failed. Consult error() for details.",
+            5042 => "destroy() failed. Consult error() for details.",
+            5090 => "POST failed. Exception error. Consult error_exception() for details.",
+            5091 => "PUT failed. Exception error. Consult error_exception() for details.",
+            5092 => "DELETE failed. Exception error. Consult error_exception() for details.",
+        );
+
+    }
+
+
 } 

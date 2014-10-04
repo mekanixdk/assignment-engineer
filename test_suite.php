@@ -6,8 +6,11 @@
  * Time: 10:38
  */
 
+/**
+ * API Client
+ */
 include "mIClient.php";
-
+$iclient = new mIClient();
 
 /**
  * privatestuff.php holds $api_key, $api_secret, $user_name, $user_password
@@ -17,11 +20,6 @@ include "mIClient.php";
  * For testing only
  */
 include "privatestuff.php";
-
-
-
-$iclient = new mIClient();
-
 
 run_test("signOut() No user signed in, client no initialized", $iclient->signOut());
 
@@ -61,20 +59,22 @@ run_test("destroy() -- Correct usage, bogus api_secret", $iclient->destroy());
 
 
 function run_test($title,  $result) {
-    //Constants
+    //Setting keywords
     $keywords = new keywords();
+//    var_dump($keywords->CLIENT_MESSAGE);
     global $iclient;
     echo("\n\n*** ".$title." ***\n");
     if(!$result) {
         echo("\nMessage from error()");
         $error = $iclient->error();
-        echo ("\nCLIENT CODE:   " . $error[$keywords->CLIENT_CODE]);
-        echo ("\nHTTP RESPONES: " . $error[$keywords->HTTP_CODE]);
+        echo ("\nCLIENT CODE:       " . $error[$keywords->CLIENT_CODE]);
+        echo ("\nCLIENT MESSAGE:    "). $keywords->CLIENT_MESSAGE[$error[$keywords->CLIENT_CODE]];
+        echo ("\nHTTP RESPONSES:    " . $error[$keywords->HTTP_CODE]);
         if(!empty($error["code"])) {
-            echo ("\nAPI CODE:      " . $error[$keywords->API_CODE]);
-            echo ("\nAPI ID:        " . $error[$keywords->API_ID]);
-            echo ("\nAPI MESSAGE:   " . $error[$keywords->API_MESSAGE]);
-            echo ("\nAPI DETAILS:   " . $error[$keywords->API_DETAILS]);
+            echo ("\nAPI CODE:          " . $error[$keywords->API_CODE]);
+            echo ("\nAPI ID:            " . $error[$keywords->API_ID]);
+            echo ("\nAPI MESSAGE:       " . $error[$keywords->API_MESSAGE]);
+            echo ("\nAPI DETAILS:       " . $error[$keywords->API_DETAILS]);
         }
          echo("\nException():" .$iclient->error_exception());
     } else {

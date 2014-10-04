@@ -26,26 +26,11 @@ class mIClient implements IClient {
     private $last_response_error;
     private $last_response_code;
 
-    //Keywords
-//    private $API_HOST = "https://api.etilbudsavis.dk";
-//    private $API_SESSIONS = "/v2/sessions";
-//    private $API_CATALOGS = "/v2/catalogs";
-//
-//    private $API_ID = "id";
-//    private $API_MESSAGE = "message";
-//    private $API_DETAILS = "details";
-//    private $API_CODE = "code";
-//    private $HTTP_CODE = "http_code";
-//    private $CLIENT_CODE = "client_code";
-//
-//    private $STRING_API_KEY = "api_key";
-//    private $STRING_USER_EMAIL = "email";
-//    private $STRING_USER_PASSWORD = "password";
+    //private $keywords;
 
-    private $keywords;
-
-    function __construct () {
-
+    function __construct ()
+    {
+        //Setting keywords
         $this->keywords = new keywords();
     }
 
@@ -118,8 +103,13 @@ class mIClient implements IClient {
          * TODO Should probably come up with a scheme to check $credentials before packing them into a PUT request.
          */
         $this->clear_errors();
+        if (empty($credentials[$this->keywords->STRING_USER_EMAIL]) or empty($credentials[$this->keywords->STRING_USER_PASSWORD])) {
+            //$credentials empty -- give error
+            $this->last_internal_error_code = 5011;
+            return false;
+        }
         $response = $this->is_session_active();
-        if(!($response >= 200 and $response < 300)) {
+        if (!($response >= 200 and $response < 300)) {
             //We do not have an active session -- give an error.
             if($response >= 5090) {
                 //Exception caught -- keep internal error code.
@@ -130,11 +120,12 @@ class mIClient implements IClient {
                 $this->last_internal_error_code = 5010;
                 return false;
             }
-        } elseif (empty($credentials[$this->keywords->STRING_USER_EMAIL]) or empty($credentials[$this->keywords->STRING_USER_PASSWORD])) {
-            //$credentials malformed -- give error
-            $this->last_internal_error_code = 5011;
-            return false;
+//        } elseif (empty($credentials[$this->keywords->STRING_USER_EMAIL]) or empty($credentials[$this->keywords->STRING_USER_PASSWORD])) {
+//            //$credentials malformed -- give error
+//            $this->last_internal_error_code = 5011;
+//            return false;
         } else {
+            //
             $put_data = array(
                 $this->keywords->STRING_USER_EMAIL => $credentials[$this->keywords->STRING_USER_EMAIL],
                 $this->keywords->STRING_USER_PASSWORD => $credentials[$this->keywords->STRING_USER_PASSWORD]
@@ -224,7 +215,6 @@ class mIClient implements IClient {
             $this->last_internal_error_code = $response;
             return false;
         } elseif ($response < 200 or $response >= 300) {
-            echo("\nisActive: ".$response."\n");
             //An non-internal error-code was returned -- return an error.
             $this->last_internal_error_code = 5041;
             $this->last_response_code = $response;
