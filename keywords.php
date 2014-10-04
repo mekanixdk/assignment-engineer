@@ -2,17 +2,25 @@
 /**
  * Created by PhpStorm.
  * User: mekanix
- * Date: 02/10/14
- * Time: 13:23
+ * Date: 04/10/14
+ * Time: 17:35
  */
 
-/*
-  * KEYWORDS
-  */
-$CLIENT_ERROR = 5000;
-$SUCCESS = "success";
-$ID = "id";
-$MESSAGE = "message";
-$DETAILS = "details";
-$CODE =  "code";
-$RESPONSE_CODE = "response_code";
+class keywords {
+
+    public $API_HOST = "https://api.etilbudsavis.dk";
+    public $API_SESSIONS = "/v2/sessions";
+    public $API_CATALOGS = "/v2/catalogs";
+
+    public $API_ID = "id";
+    public $API_MESSAGE = "message";
+    public $API_DETAILS = "details";
+    public $API_CODE = "code";
+    public $HTTP_CODE = "http_code";
+    public $CLIENT_CODE = "client_code";
+
+    public $STRING_API_KEY = "api_key";
+    public $STRING_USER_EMAIL = "email";
+    public $STRING_USER_PASSWORD = "password";
+
+} 

@@ -6,6 +6,8 @@
  * Time: 08:51
  */
 include "IClient.php";
+include_once "keywords.php";
+
 
 class mIClient implements IClient {
 
@@ -24,20 +26,28 @@ class mIClient implements IClient {
     private $last_response_error;
     private $last_response_code;
 
-    //API constants.
-    private $API_HOST = "https://api.etilbudsavis.dk";
-    private $API_SESSIONS = "/v2/sessions";
+    //Keywords
+//    private $API_HOST = "https://api.etilbudsavis.dk";
+//    private $API_SESSIONS = "/v2/sessions";
+//    private $API_CATALOGS = "/v2/catalogs";
+//
+//    private $API_ID = "id";
+//    private $API_MESSAGE = "message";
+//    private $API_DETAILS = "details";
+//    private $API_CODE = "code";
+//    private $HTTP_CODE = "http_code";
+//    private $CLIENT_CODE = "client_code";
+//
+//    private $STRING_API_KEY = "api_key";
+//    private $STRING_USER_EMAIL = "email";
+//    private $STRING_USER_PASSWORD = "password";
 
-    private $API_ID = "id";
-    private $API_MESSAGE = "message";
-    private $API_DETAILS = "details";
-    private $API_CODE = "code";
-    private $HTTP_CODE = "http_code";
-    private $CLIENT_CODE = "client_code";
+    private $keywords;
 
-    private $STRING_API_KEY = "api_key";
-    private $STRING_USER_EMAIL = "email";
-    private $STRING_USER_PASSWORD = "password";
+    function __construct () {
+
+        $this->keywords = new keywords();
+    }
 
     /**
      * Initialize the client with api key and secret
@@ -73,9 +83,9 @@ class mIClient implements IClient {
             return false;
         } else {
             $body_content = array(
-                $this->STRING_API_KEY => $key
+                $this->keywords->STRING_API_KEY => $key
             );
-            $url = $this->API_HOST.$this->API_SESSIONS;
+            $url = $this->keywords->API_HOST.$this->keywords->API_SESSIONS;
             $response_code = $this->http_post($body_content, $url);
             if ($response_code >= 200 and $response_code < 300) {
                 //Success -- initialize
@@ -120,21 +130,21 @@ class mIClient implements IClient {
                 $this->last_internal_error_code = 5010;
                 return false;
             }
-        } elseif (empty($credentials[$this->STRING_USER_EMAIL]) or empty($credentials[$this->STRING_USER_PASSWORD])) {
+        } elseif (empty($credentials[$this->keywords->STRING_USER_EMAIL]) or empty($credentials[$this->keywords->STRING_USER_PASSWORD])) {
             //$credentials malformed -- give error
             $this->last_internal_error_code = 5011;
             return false;
         } else {
             $put_data = array(
-                $this->STRING_USER_EMAIL => $credentials[$this->STRING_USER_EMAIL],
-                $this->STRING_USER_PASSWORD => $credentials[$this->STRING_USER_PASSWORD]
+                $this->keywords->STRING_USER_EMAIL => $credentials[$this->keywords->STRING_USER_EMAIL],
+                $this->keywords->STRING_USER_PASSWORD => $credentials[$this->keywords->STRING_USER_PASSWORD]
             );
-            $url = $this->API_HOST.$this->API_SESSIONS;
+            $url = $this->keywords->API_HOST.$this->keywords->API_SESSIONS;
             $response_code = $this->http_put($put_data, $url);
             if ($response_code >= 200 and $response_code < 300) {
                 //Success -- User signed in.
-                $this->user_email = $credentials[$this->STRING_USER_EMAIL];
-                $this->user_password = $credentials[$this->STRING_USER_PASSWORD];
+                $this->user_email = $credentials[$this->keywords->STRING_USER_EMAIL];
+                $this->user_password = $credentials[$this->keywords->STRING_USER_PASSWORD];
                 return true;
             } elseif ($response_code >= 5090 ) {
                 //exception caught
@@ -175,9 +185,9 @@ class mIClient implements IClient {
             }
         } else {
             $put_data = array(
-                $this->STRING_USER_EMAIL => ""
+                $this->keywords->STRING_USER_EMAIL => ""
             );
-            $url = $this->API_HOST.$this->API_SESSIONS;
+            $url = $this->keywords->API_HOST.$this->keywords->API_SESSIONS;
             $response_code = $this->http_put($put_data, $url);
             if ($response_code >= 200 and $response_code < 300) {
                 //Success -- User signed out.
@@ -221,7 +231,7 @@ class mIClient implements IClient {
             return false;
         } else {
             //Green Light -- destroy
-            $url = $this->API_HOST.$this->API_SESSIONS;
+            $url = $this->keywords->API_HOST.$this->keywords->API_SESSIONS;
             $response_code = $this->http_delete(null, $url);
             if ($response_code >= 200 and $response_code < 300) {
                 //Success -- destroyed
@@ -240,9 +250,25 @@ class mIClient implements IClient {
     }
 
     /**
+     * INPUT
+     *  r_lat       (must?)
+     *  r_lng       (must?)
+     *  r_radius    (must?)
+     *  catalog_ids
+     *  dealer_ids
+     *  store_ids
+     *  <sorting>
+     *      popularity
+     *      dealer
+     *      created
+     *      expiration_date
+     *      publication_date
+     *      distance
+     *      example order_by=distance,name (- in reverse)
      *
      *
      *
+     * @return mixed    FALSE in case of error. Array of json in case of success.
      */
     public function getCatalogList($options)
     {
@@ -438,17 +464,17 @@ class mIClient implements IClient {
     {
         if(!empty($this->last_response_error)) {
             return array(
-                $this->CLIENT_CODE => $this->last_internal_error_code,
-                $this->HTTP_CODE => $this->last_response_code,
-                $this->API_CODE => $this->last_response_error[$this->API_CODE],
-                $this->API_ID => $this->last_response_error[$this->API_ID],
-                $this->API_MESSAGE => $this->last_response_error[$this->API_MESSAGE],
-                $this->API_DETAILS => $this->last_response_error[$this->API_DETAILS]
+                $this->keywords->CLIENT_CODE => $this->last_internal_error_code,
+                $this->keywords->HTTP_CODE => $this->last_response_code,
+                $this->keywords->API_CODE => $this->last_response_error[$this->keywords->API_CODE],
+                $this->keywords->API_ID => $this->last_response_error[$this->keywords->API_ID],
+                $this->keywords->API_MESSAGE => $this->last_response_error[$this->keywords->API_MESSAGE],
+                $this->keywords->API_DETAILS => $this->last_response_error[$this->keywords->API_DETAILS]
             );
         } else {
             return array(
-                $this->CLIENT_CODE => $this->last_internal_error_code,
-                $this->HTTP_CODE => $this->last_response_code
+                $this->keywords->CLIENT_CODE => $this->last_internal_error_code,
+                $this->keywords->HTTP_CODE => $this->last_response_code
             );
         }
     }
@@ -497,14 +523,14 @@ class mIClient implements IClient {
             //No token, so definite no active session.
             return false;
         } else {
-            $response_code = $this->http_put(null, $this->API_HOST.$this->API_SESSIONS);
+            $response_code = $this->http_put(null, $this->keywords->API_HOST.$this->keywords->API_SESSIONS);
             if ($response_code >=200 and $response_code <300) {
                 //We have an active session
                 return $response_code;
             } elseif ($response_code == 400) {
                 //We goofed up -- error.
                 $error_array = $this->error();
-                if ($error_array[$this->API_CODE] == 1001) {
+                if ($error_array[$this->keywords->API_CODE] == 1001) {
                     //Token have expired -- we COULD handle this
                     //      But for now we de-initialize.
                     //TODO Policy: Token expired reset variables and prepare for re-initialize.
