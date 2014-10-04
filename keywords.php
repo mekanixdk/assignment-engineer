@@ -23,8 +23,6 @@ class keywords {
     public $STRING_USER_EMAIL = "email";
     public $STRING_USER_PASSWORD = "password";
 
-    public $CLIENT_MESSAGE;
-
     function __construct() {
         $this->CLIENT_MESSAGE = array(
             5001 => "initialize() failed. Session already active.",
