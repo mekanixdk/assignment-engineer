@@ -6,7 +6,6 @@
  * Time: 10:38
  */
 
-//include "myIClient.php";
 include "mIClient.php";
 
 
