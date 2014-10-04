@@ -49,6 +49,8 @@ class myIClient implements IClient {
     private $CODE = "code";
     private $RESPONSE_CODE = "response_code";
     private $API_KEY = "api_key";
+    private $C_USER_NAME = "email";
+    private $C_USER_PASSWORD = "password";
 
 
     private $host = "https://api.etilbudsavis.dk";
@@ -82,7 +84,6 @@ class myIClient implements IClient {
             //Illegal $key or $secret
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "Illegal \$key or \$secret!",
                 $this->DETAILS => "Either \$key or \$secret are either empty, FALSE or null!"
             );
@@ -101,7 +102,6 @@ class myIClient implements IClient {
         } else {
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "Client already initialized",
                 $this->DETAILS => "Client already initialized!"
             );
@@ -137,7 +137,6 @@ class myIClient implements IClient {
             //Illegal credentials
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "Illegal credentials!",
                 $this->DETAILS => "User_name or user_password are either empty, FALSE or null!"
             );
@@ -145,7 +144,6 @@ class myIClient implements IClient {
             //Client no initialized
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "Client not initialized!",
                 $this->DETAILS => "Client not initialized! You need to call initialize(\$key, \$secret) first."
             );
@@ -154,7 +152,6 @@ class myIClient implements IClient {
             //TODO Check if the user is the same -- if it is ignore request.
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "A user is already attached!",
                 $this->DETAILS => "A user is already attached! You need to logout the current user first."
             );
@@ -168,9 +165,7 @@ class myIClient implements IClient {
                 $this->user_password = null;
             }
         }
-
         return $return_message;
-
     }
 
 
@@ -197,7 +192,6 @@ class myIClient implements IClient {
         if (!isset($this->user_name)) {
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "No user signed in!",
                 $this->DETAILS => "No user signed in! A user must be signed in first."
             );
@@ -236,7 +230,6 @@ class myIClient implements IClient {
             //TODO Redundancy? Better way to test and create error-messages and reduce clutter?
             $return_message = array(
                 $this->SUCCESS => FALSE,
-                $this->ID => null,
                 $this->MESSAGE => "Client not initialized!",
                 $this->DETAILS => "Client not initialized! You need to call initialize(\$key, \$secret) first."
             );
@@ -336,6 +329,7 @@ class myIClient implements IClient {
                     $this->MESSAGE => "Session token acquired.",
                     $this->DETAILS => "Session token acquired. Token: ".$this->api_token."."
                 );
+                echo ("\nBody dump for create session\n".$req_http->getResponseBody()."\n");
             } else {
                 //Something went wrong.
                 $response_header = $req_http->getResponseHeader();
@@ -428,6 +422,133 @@ class myIClient implements IClient {
 
     private function user_signIn()
     {
+        $json_array = array(
+            $this->C_USER_NAME => $this->user_name,
+            $this->C_USER_PASSWORD => $this->user_password
+        );
+        $headers = array(
+            "X-Token" => $this->api_token,
+            "X-Signature" => hash("sha256",$this->api_secret.$this->api_token)
+        );
+        $req_message = json_encode($json_array);
+        $req_http = new HttpRequest($this->host."/v2/sessions", HttpRequest::METH_PUT);
+        $req_http->setContentType("application/json");
+        $req_http->setPutData($req_message);
+        echo("\nMessage Dump\n".$req_message);
+        $req_http->setHeaders($headers);
+        try {
+            $req_http->send();
+            if ($req_http->getResponseCode() >= 200 and $req_http->getResponseCode() < 300) {
+                //Request successful -- User signed in.
+                $return_message = array(
+                    $this->SUCCESS => true,
+                    $this->RESPONSE_CODE => $req_http->getResponseCode(),
+                    $this->MESSAGE => "User signed in.",
+                    $this->DETAILS => "User ".$this->user_name." signed in."
+                );
+                //TODO apply error check of json_decode.
+                //TODO research multidimensionality of json_decode/arrays
+                $json_array = json_decode($req_http->getResponseBody(), true);
+                $this->api_token = $json_array["token"];
+                $this->api_token_expires = $json_array["expires"];
+
+                //Dump body
+                echo ("\nBody dump\n".$req_http->getResponseBody()."\n");
+
+            } else {
+                //Sign in failed.
+                $response_header = $req_http->getResponseHeader();
+                if ($response_header["Content-Type"] == "application/json") { //TODO be aware of case-sensitivity -- would be great with a getResponseContentType()
+                    $return_message = $this->json_to_error_message($req_http);
+                    if ($return_message[$this->CODE] == 1101) { //Token have expired
+                        //TODO  Two options: 1) Clean up and prepare for caller to reinitialize
+                        //      OR 2) We have all information to create a new session silently
+                    }
+                } else {
+                    //Did not receive a json response
+                    $return_message = array(
+                        $this->SUCCESS => false,
+                        $this->RESPONSE_CODE => $req_http->getResponseCode(),
+                        $this->MESSAGE => "Sign in failed.",
+                        $this->DETAILS => "Sign in failed. Consult Error Code."
+                    );
+                }
+            }
+            return $return_message;
+        } catch (Exception $e) {
+            $return_message = array(
+                $this->SUCCESS => false,
+                $this->MESSAGE => $e,
+            );
+            //TODO Check if $e is eg. time-out and we could just reissue $req_http->send();
+            return $return_message;
+        }
+
+
+    }
+
+    private function user_signOut()
+    {
+
+        $json_array = array(
+            $this->C_USER_NAME => ""
+        );
+        $headers = array(
+            "X-Token" => $this->api_token,
+            "X-Signature" => hash("sha256",$this->api_secret.$this->api_token)
+        );
+        $req_message = json_encode($json_array);
+        $req_http = new HttpRequest($this->host."/v2/sessions", HttpRequest::METH_PUT);
+        $req_http->setContentType("application/json");
+        $req_http->setPutData($req_message);
+        $req_http->setHeaders($headers);
+        try {
+            $req_http->send();
+            if ($req_http->getResponseCode() >= 200 and $req_http->getResponseCode() < 300) {
+                //Request successful -- User signed in.
+                $return_message = array(
+                    $this->SUCCESS => true,
+                    $this->RESPONSE_CODE => $req_http->getResponseCode(),
+                    $this->MESSAGE => "User signed out.",
+                    $this->DETAILS => "User signed out. Session still alive"
+                );
+                //TODO apply error check of json_decode.
+                //TODO research multidimensionality of json_decode/arrays
+                $json_array = json_decode($req_http->getResponseBody(), true);
+                $this->api_token = $json_array["token"];
+                $this->api_token_expires = $json_array["expires"];
+
+                echo ("\nSignOutDump".$req_http->getResponseBody()."\n");
+            } else {
+                //Sign out failed.
+                $response_header = $req_http->getResponseHeader();
+                if ($response_header["Content-Type"] == "application/json") { //TODO be aware of case-sensitivity -- would be great with a getResponseContentType()
+                    $return_message = $this->json_to_error_message($req_http);
+                    if ($return_message[$this->CODE] == 1101) { //Token have expired
+                        //TODO  Two options: 1) Clean up and prepare for caller to reinitialize
+                        //      OR 2) We have all information to create a new session silently
+                    }
+                } else {
+                    //Did not receive a json response
+                    $return_message = array(
+                        $this->SUCCESS => false,
+                        $this->RESPONSE_CODE => $req_http->getResponseCode(),
+                        $this->MESSAGE => "Sign out failed.",
+                        $this->DETAILS => "Sign out failed. Consult Error Code."
+                    );
+                }
+            }
+            return $return_message;
+
+        } catch (Exception $e) {
+            $return_message = array(
+                $this->SUCCESS => false,
+                $this->MESSAGE => $e,
+            );
+            //TODO Check if $e is eg. time-out and we could just reissue $req_http->send();
+            return $return_message;
+
+        }
 
     }
 
