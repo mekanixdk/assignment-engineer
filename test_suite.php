@@ -23,27 +23,25 @@ $keywords = $iclient->keywords;
 include "privatestuff.php";
 
 
-//run_test("signOut() No user signed in, client no initialized", $iclient->signOut());
-//
-//run_test("signIn() -- Correct usage, but client not initialized", $iclient->signIn(array(
-//    "email" => $user_name,
-//    "password" => $user_password)));
-//
-//run_test("initialize() Bogus api_key", $iclient->initialize("xx", $api_secret));
-//
+run_test("signOut() No user signed in, client no initialized", $iclient->signOut());
+
+run_test("signIn() -- Correct usage, but client not initialized", $iclient->signIn(array(
+    "email" => $user_name,
+    "password" => $user_password)));
+
+run_test("initialize() Bogus api_key", $iclient->initialize("xx", $api_secret));
+
 run_test("initialize() -- Correct usage", $iclient->initialize($api_key, $api_secret));
-//
-//run_test("signOut() No user signed in", $iclient->signOut());
-//
-//run_test("signIn() Bogus user", $iclient->signIn(array(
-//    "email" => "xx",
-//    "password" => "yy")));
-//
-//run_test("signIn() Malformed array", $iclient->signIn(array(
-//    "mail" => "xx",
-//    "password" => "yy")));
 
+run_test("signOut() No user signed in", $iclient->signOut());
 
+run_test("signIn() Bogus user", $iclient->signIn(array(
+    "email" => "xx",
+    "password" => "yy")));
+
+run_test("signIn() Malformed array", $iclient->signIn(array(
+    "mail" => "xx",
+    "password" => "yy")));
 
 run_test("signIn() -- Correct usage", $iclient->signIn(array(
     "email" => $user_name,
@@ -72,12 +70,12 @@ run_test("signOut() -- Correct usage", $iclient->signOut());
 run_test("destroy() -- Correct usage", $iclient->destroy());
 
 //Make test with bogus secret
-//run_test("initialize() Correct api_key, Bogus api_secret", $iclient->initialize($api_key, "xxx"));
-//run_test("signIn() -- Correct usage, bogus api_secret", $iclient->signIn(array(
-//    "email" => $user_name,
-//    "password" => $user_password)));
-//run_test("signOut() -- Correct usage, bogus api_secret", $iclient->signOut());
-//run_test("destroy() -- Correct usage, bogus api_secret", $iclient->destroy());
+run_test("initialize() Correct api_key, Bogus api_secret", $iclient->initialize($api_key, "xxx"));
+run_test("signIn() -- Correct usage, bogus api_secret", $iclient->signIn(array(
+    "email" => $user_name,
+    "password" => $user_password)));
+run_test("signOut() -- Correct usage, bogus api_secret", $iclient->signOut());
+run_test("destroy() -- Correct usage, bogus api_secret", $iclient->destroy());
 
 
 function run_test($title,  $result) {

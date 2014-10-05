@@ -30,8 +30,6 @@ class keywords {
     public $DEALER_IDS = "dealer_ids";
     public $STORE_IDS = "store_ids";
     public $ORDER_BY = "order_by";
-    public $FILTER_BY = "filter_by"; //TODO not sure if this is the correct one?
-                                    //TODO FILTER BY KEYWORDS
     public $POPULARITY = "popularity";
     public $DEALER = "dealer";
     public $CREATED = "created";

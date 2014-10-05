@@ -30,6 +30,9 @@ class mIClient implements IClient {
 
     //private $keywords;
 
+    /**
+     * __construct() initialize keywords-object when mIClient is created.
+     */
     function __construct ()
     {
         //Setting keywords
@@ -69,10 +72,6 @@ class mIClient implements IClient {
             //An non-internal error-code was returned -- return an error.
             $this->last_client_code = 5004;
             return false;
-//        } elseif (empty($key) or empty($secret)) {
-//            //Malformed $key or $secret -- return an error.
-//            $this->last_internal_error_code = 5002;
-//            return false;
         } else {
             $body_content = array(
                 $this->keywords->STRING_API_KEY => $key
@@ -243,24 +242,19 @@ class mIClient implements IClient {
     }
 
     /**
-     * getCatalogList takes an ARRAY of option
-     * INPUT
-     *  r_lat       (must?)
-     *  r_lng       (must?)
-     *  r_radius    (must?)
-     *  catalog_ids[]
-     *  dealer_ids[]
-     *  store_ids[]
-     *  <sorting>[]
-     *      popularity
-     *      dealer
-     *      created
-     *      expiration_date
-     *      publication_date
-     *      distance
-     *      example order_by=distance,name (- in reverse)
+     * getCatalogList takes an ARRAY of option according to the syntax below.
      *
-     *
+     * $options[]
+     *      [$LATITUDE]         (Mandatory) Latitude for your search origin.
+     *      [$LONGITUDE]        (Mandatory) Longitude for your search origin.
+     *      [$RADIUS]           (Mandatory) Radius in meters from your search origin.
+     *      [$CATALOG_IDS[]]    (Optional)  Array of catalog ids to filter by. Ex. Array("xyz123", "yzx231").
+     *      [$DEALER_IDS[]]     (Optional)  Array of dealer ids to filter by.
+     *      [$STORE_IDS[]]      (Optional)  Array of store ids to filter by.
+     *      [$ORDER_BY[]]       (Optional)  Array of options. Valid options:
+     *                                      "popularity", "dealer", "created", "expiration_date", "publication_date",
+     *                                      "distance".
+     *                                      Option with - prepended gives the reverse order.
      *
      * @return mixed    FALSE in case of error. Array of json in case of success.
      */
@@ -286,7 +280,6 @@ class mIClient implements IClient {
             $this->keywords->DEALER_IDS,
             $this->keywords->STORE_IDS,
             $this->keywords->ORDER_BY,
-            $this->keywords->FILTER_BY
         );
         foreach ($optional_array as &$var_option) {
             if(!empty($options[$var_option])) {
@@ -670,7 +663,7 @@ class mIClient implements IClient {
      * @param   array   $query          The current query array
      * @param   string  $array_name     Option name
      * @param   array   $array          Array of options
-     * @return  mixed   $query          Returns modified $query if queries added or the original $query
+     * @return  mixed   $query          Returns modified $query if queries added else return the original $query
      */
     private function add_optional($query, $array_name, $array)
     {
